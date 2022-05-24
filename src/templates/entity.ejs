@@ -1,0 +1,9 @@
+<% for (let im of imports) { %>
+<%- im %><% 
+}%>
+
+export class <%= name %> {
+<% for (let i = 0; i < columns.length; i++) { %>
+  <%=columns[i].name %><%=columns[i].isNullable ? "?: " : ": "%><%=columns[i].type%><%=columns[i].defaultValue ? " = " + columns[i].defaultValue : null%><%= columns[i].isArray ? "[]" : null%>;
+<% }%>
+}
