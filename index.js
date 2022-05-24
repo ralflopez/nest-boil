@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "fs"
+import { getEntities, getParsedEntity } from "./src/parser.js"
 
 async function main() {
   const args = process.argv
@@ -11,8 +12,10 @@ async function main() {
   const filePath = process.argv[2]
 
   try {
-    const schema = fs.readFileSync(filePath, "utf-8")
-    console.log(schema)
+    // Parse
+    const schemaStr = fs.readFileSync(filePath, "utf-8")
+    const entites = getEntities(schemaStr)
+    const parsedEntites = getParsedEntity(entites)
   } catch (err) {
     console.error(err)
   }
