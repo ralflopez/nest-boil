@@ -1,0 +1,27 @@
+{
+  "name": "nest-boil",
+  "version": "0.0.1",
+  "description": "A crud generator for nest js + prisma",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": "./index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ralflopez/nest-boil.git"
+  },
+  "keywords": [
+    "Nest.js",
+    "metaprogramming",
+    "node",
+    "boilerplate"
+  ],
+  "author": "Ralf",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ralflopez/nest-boil/issues"
+  },
+  "homepage": "https://github.com/ralflopez/nest-boil#readme"
+}
