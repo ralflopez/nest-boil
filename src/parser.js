@@ -1,3 +1,5 @@
+import { buildEntityImport, buildEnumImport } from "./helpers/imports.js"
+
 // Get all entites from json schem
 export function getEntities(schemaStr) {
   const schema = JSON.parse(schemaStr)
@@ -14,18 +16,20 @@ export function getParsedEntity(entities) {
     const entityType = {
       columns: [],
       name: entity,
+      type: "entity",
+      imports: new Set(),
     }
     // Add Columns to the entity object
     propertyList.forEach((property) => {
       entityType.columns.push(
-        extractType(entity, property, properties[property])
+        extractType(entityType, property, properties[property])
       )
     })
 
     // Add created entity object in list
     entityTypeList.push(entityType)
   })
-
+  console.log(entityTypeList)
   return entityTypeList
 }
 
@@ -34,25 +38,30 @@ export function extractType(parent, name, property) {
   const result = {
     defaultValue: property.default,
     isNullable: type.includes("null"),
+    isArray: false,
     name,
     type: "",
-    entity: parent,
+    entity: parent.name,
     decorators: type.includes("null") ? ["@IsOptional()"] : ["@IsDefined()"],
   }
 
   if (!property.type) {
     // relation
     result.type = property.anyOf[0].$ref.split("/").pop()
+    parent.imports.add(buildEntityImport(result.type))
   } else if (type.includes("array")) {
     if (property.items?.$ref) {
       // array with relations
       result.type = property.items.$ref.split("/").pop()
+      parent.imports.add(buildEntityImport(result.type))
+      result.isArray = true
     } else if (type.length > 3) {
       // any
       result.type = "any"
     } else {
       // array with primitive type
       result.type = property.items.type
+      result.isArray = true
     }
   } else if (
     type.includes("integer") ||
@@ -68,9 +77,13 @@ export function extractType(parent, name, property) {
       result.decorators.push("@IsDate()")
       result.type = "Date"
     } else if (property.enum) {
-      // enum
-      result.type = property.enum.reduce((prev, cur) => prev + " | " + cur)
-      result.decorators.push(`@IsIn(${result.type.replace("|", ",")})`)
+      // enum (type ENUM will have enum property)
+      const enumName = name.charAt(0).toUpperCase() + name.slice(1)
+      parent.imports.add(buildEnumImport(enumName))
+      result.type = enumName
+      result.enum = property.enum
+      result.defaultValue = `${enumName}.${result.defaultValue}`
+      result.decorators.push(`@IsEnum(${enumName})`)
     } else {
       // string
       result.decorators.push("@IsString()")
